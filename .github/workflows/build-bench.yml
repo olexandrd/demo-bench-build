@@ -1,0 +1,108 @@
+name: build-bench (amd64 + arm64 → GHCR)
+
+on:
+  push:
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/build-bench.yml"
+      - "**/*.py"
+      - "**/*.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}-bench
+  TAGS_BASE: latest
+  TAGS_SHA: sha-${{ github.sha }}
+
+jobs:
+  build-single-arch:
+    name: Build ${{ matrix.arch }} image
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runs_on: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            runs_on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs_on }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute version (optional)
+        id: ver
+        run: |
+          VER="${GITHUB_REF_NAME}"
+          [ -z "$VER" ] && VER="${GITHUB_SHA::7}"
+          echo "VER=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push single-arch image (${{ matrix.arch }})
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: true
+          provenance: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.arch }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.arch }}-${{ steps.ver.outputs.VER }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.arch }}-${{ env.TAGS_SHA }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Unified CPU-bench image
+            org.opencontainers.image.version=${{ steps.ver.outputs.VER }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  create-manifest:
+    name: Create multi-arch manifest
+    needs: [build-single-arch]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create manifest (latest + sha)
+        run: |
+          docker buildx imagetools create \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAGS_BASE }} \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAGS_SHA }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:arm64
+
+      - name: Create manifest (version tag)
+        run: |
+          VER="${GITHUB_REF_NAME}"; [ -z "$VER" ] && VER="${GITHUB_SHA::7}"
+          docker buildx imagetools create \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE }}:${VER} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:amd64-${VER} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:arm64-${VER}
+
+      - name: Inspect manifest
+        run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ env.TAGS_BASE }}
