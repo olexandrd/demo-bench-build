@@ -53,7 +53,7 @@ case "${1:-help}" in
     ;;
   sysbench)
     shift
-    measure "sysbench cpu run $*"
+    measure "sysbench cpu $*"
     ;;
   ffmpeg)
     shift
@@ -62,7 +62,7 @@ case "${1:-help}" in
   numpy)
     shift
     sub="${1:-matmul}"; shift || true
-    measure "python${PYTHON_VERSION} /opt/bench/numpy_tasks.py ${sub} $*"
+    measure "python3 /opt/bench/numpy_tasks.py ${sub} $*"
     ;;
   help|--help|-h)
     cat <<USAGE

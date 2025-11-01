@@ -25,7 +25,7 @@ write_files:
       ARCH=$(uname -m)
       PREFIX="runs/$${ARCH}/$${ITYPE}/$${IID}/$${RUN_ID}"
 
-      docker run --rm --cpus=4 "$IMAGE" sysbench cpu run --threads=4 --time=20 \
+      docker run --rm --cpus=4 "$IMAGE" sysbench run --threads=4 --time=20 \
         | tee /var/log/bench/sysbench.jsonl
       docker run --rm "$IMAGE" numpy matmul 2000 \
         | tee /var/log/bench/numpy.jsonl
