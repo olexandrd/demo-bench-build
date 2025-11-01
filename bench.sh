@@ -51,9 +51,9 @@ case "${1:-help}" in
     shift
     measure "$*"
     ;;
-  sysbench)
+  stress-ng)
     shift
-    measure "sysbench cpu $*"
+    measure "stress-ng $*"
     ;;
   ffmpeg)
     shift
@@ -68,7 +68,7 @@ case "${1:-help}" in
     cat <<USAGE
 Usage:
   bench run <any command ...>
-  bench sysbench [--threads=N --time=S ...]
+  bench stress-ng [--cpu 1 --cpu-method all --metrics-brief --timeout 60s ...]
   bench ffmpeg   [common ffmpeg args ...]
   bench numpy    [matmul N | elem N [ITER]]
 

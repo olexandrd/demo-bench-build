@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates tzdata locales curl jq procps coreutils \
       python3 python3-pip python3-venv python3-dev \
-      sysbench ffmpeg time util-linux numactl \
+      stress-ng ffmpeg time util-linux numactl \
     && rm -rf /var/lib/apt/lists/*
 
 ENV VENV_DIR=/opt/py
