@@ -68,7 +68,7 @@ case "${1:-help}" in
     cat <<USAGE
 Usage:
   bench run <any command ...>
-  bench stress-ng [--cpu 1 --cpu-method all --metrics-brief --timeout 60s ...]
+  bench stress-ng [--cpu 1 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 60s ...]
   bench ffmpeg   [common ffmpeg args ...]
   bench numpy    [matmul N | elem N [ITER]]
 

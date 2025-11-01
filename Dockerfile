@@ -19,8 +19,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 ENV VENV_DIR=/opt/py
 RUN python3 -m venv "$VENV_DIR" && \
-    "$VENV_DIR/bin/pip" install --upgrade pip==24.2 && \
-    "$VENV_DIR/bin/pip" install numpy==2.3.4
+    "$VENV_DIR/bin/pip" install --upgrade pip && \
+    "$VENV_DIR/bin/pip" install numpy==${NUMPY_VERSION}
 
 ENV PATH="$VENV_DIR/bin:${PATH}"
 

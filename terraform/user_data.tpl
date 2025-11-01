@@ -25,14 +25,14 @@ write_files:
       ARCH=$(uname -m)
       PREFIX="runs/$${ARCH}/$${ITYPE}/$${IID}/$${RUN_ID}"
 
-      docker run --rm --cpus=2 "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --timeout 20s \
-        | tee /var/log/bench/sysbench.jsonl
+      docker run --rm --cpus=2 "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 20s \
+        | tee /var/log/bench/stressng.jsonl
       docker run --rm --cpus=2 "$IMAGE" numpy matmul 2000 \
         | tee /var/log/bench/numpy.jsonl
       docker run --rm --cpus=2 "$IMAGE" numpy elem 1000000 50 \
         | tee /var/log/bench/numpy-elem.jsonl
 
-      aws s3 cp /var/log/bench/sysbench.jsonl   "s3://$${BUCKET}/$${PREFIX}/sysbench.jsonl"
+      aws s3 cp /var/log/bench/stressng.jsonl   "s3://$${BUCKET}/$${PREFIX}/stressng.jsonl"
       aws s3 cp /var/log/bench/numpy.jsonl      "s3://$${BUCKET}/$${PREFIX}/numpy.jsonl"
       aws s3 cp /var/log/bench/numpy-elem.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-elem.jsonl"
 
