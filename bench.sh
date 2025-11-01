@@ -28,7 +28,6 @@ emit_json() {
 }
 
 measure() {
-  # використовуємо /usr/bin/time -f для витягування user/sys/maxrss; wall міряємо своїм таймером
   local ts0 ts1 wall cmd exit_code
   cmd="$*"
   ts0=$(now_ms)
@@ -68,13 +67,13 @@ case "${1:-help}" in
   help|--help|-h)
     cat <<USAGE
 Usage:
-  bench run <будь-яка команда>
+  bench run <any command ...>
   bench sysbench [--threads=N --time=S ...]
-  bench ffmpeg   [звичні аргументи ffmpeg]
+  bench ffmpeg   [common ffmpeg args ...]
   bench numpy    [matmul N | elem N [ITER]]
 
-Env meta (опційно): RUN_ID, TASK, DATASET, EXTRA
-Output: один JSON-рядок зі зліпком метрик + stdout/err команди у звичайному вигляді
+Env meta (optional): RUN_ID, TASK, DATASET, EXTRA
+Output: JSON-string with metrics + stdout/err of the command in plain format
 USAGE
     ;;
   *)
