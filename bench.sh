@@ -53,7 +53,7 @@ case "${1:-help}" in
     ;;
   sysbench)
     shift
-    measure "sysbench cpu $*"
+    measure "sysbench cpu run $*"
     ;;
   ffmpeg)
     shift
