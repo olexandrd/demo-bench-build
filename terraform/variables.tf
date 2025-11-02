@@ -10,16 +10,22 @@ variable "bench_image" {
   default     = "ghcr.io/olexandrd/demo-bench-build-bench:latest"
 }
 
-variable "instance_type_amd64" {
-  description = "AMD64 instance type"
-  type        = string
-  default     = "t3.xlarge" # 4 vCPU / 16 GiB
+variable "instance_types_arm" {
+  description = "Instance types list ARM64 (Graviton)"
+  type        = list(string)
+  default     = ["t4g.xlarge"]
 }
 
-variable "instance_type_arm64" {
-  description = "ARM64 instance type (Graviton)"
-  type        = string
-  default     = "t4g.xlarge" # 4 vCPU / 16 GiB
+variable "instance_types_amd" {
+  description = "Instance types list AMD64 (x86_64)"
+  type        = list(string)
+  default     = ["t3.xlarge"]
+}
+
+variable "instances_per_type" {
+  description = "Number of instances per type"
+  type        = number
+  default     = 1
 }
 
 variable "ssh_cidr" {

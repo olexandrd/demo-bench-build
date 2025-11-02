@@ -27,7 +27,7 @@ write_files:
       ITYPE=$(curl -s "$${HDR[@]}" http://169.254.169.254/latest/meta-data/instance-type || echo "t-unknown")
 
       ARCH=$(uname -m)
-      PREFIX="runs/$${ARCH}/$${ITYPE}/$${IID}/$${RUN_ID}"
+      PREFIX="runs/$${ARCH}/$${ITYPE}/$${RUN_ID}/$${IID}"
 
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \

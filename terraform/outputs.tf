@@ -15,5 +15,13 @@ output "ls_command" {
   value = "aws s3 ls s3://${aws_s3_bucket.bench.bucket}/runs/ --recursive"
 }
 
-output "amd64_public_ip" { value = aws_instance.amd64.public_ip }
-output "arm64_public_ip" { value = aws_instance.arm64.public_ip }
+
+output "arm64_instance_public_ips" {
+  description = "ARM64: public IPs for key <type>#<idx>"
+  value       = { for k, inst in aws_instance.arm64 : k => inst.public_ip }
+}
+
+output "amd64_instance_public_ips" {
+  description = "AMD64: public IPs for key <type>#<idx>"
+  value       = { for k, inst in aws_instance.amd64 : k => inst.public_ip }
+}
