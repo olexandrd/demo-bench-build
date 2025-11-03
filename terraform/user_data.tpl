@@ -47,11 +47,24 @@ write_files:
         -e DATASET="default" \
         "$IMAGE" numpy elem 1000000 50 \
         | tee /var/log/bench/numpy-elem.jsonl
+      docker run --rm --cpus=2 \
+        -e RUN_ID="$RUN_ID" \
+        -e TASK="ffmpeg" \
+        -e DATASET="default" \
+        "$IMAGE" ffmpeg \
+          -f lavfi \
+          -i testsrc=duration=10:size=1920x1080:rate=30 \
+          -c:v libx264 \
+          -preset medium \
+          -crf 28 \
+          -an \
+          -f null - \
+        | tee /var/log/bench/ffmpeg.jsonl
 
       aws s3 cp /var/log/bench/stressng.jsonl   "s3://$${BUCKET}/$${PREFIX}/stressng.jsonl"
       aws s3 cp /var/log/bench/numpy.jsonl      "s3://$${BUCKET}/$${PREFIX}/numpy.jsonl"
       aws s3 cp /var/log/bench/numpy-elem.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-elem.jsonl"
-
+      aws s3 cp /var/log/bench/ffmpeg.jsonl     "s3://$${BUCKET}/$${PREFIX}/ffmpeg.jsonl"
       touch DONE && aws s3 cp DONE "s3://$${BUCKET}/$${PREFIX}/DONE"
 
       shutdown -h now || true
