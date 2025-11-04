@@ -33,24 +33,36 @@ write_files:
         -e RUN_ID="$RUN_ID" \
         -e TASK="stress-ng" \
         -e DATASET="default" \
+        -e INSTANCE_ID="$IID" \
+        -e INSTANCE_TYPE="$ITYPE" \
+        -e CLOUD_PROVIDER="AWS" \
         "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 20s \
         | tee /var/log/bench/stressng.jsonl
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \
         -e TASK="stress-ng" \
         -e DATASET="default" \
+        -e INSTANCE_ID="$IID" \
+        -e INSTANCE_TYPE="$ITYPE" \
+        -e CLOUD_PROVIDER="AWS" \
         "$IMAGE" numpy matmul 2000 \
         | tee /var/log/bench/numpy.jsonl
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \
         -e TASK="stress-ng" \
         -e DATASET="default" \
+        -e INSTANCE_ID="$IID" \
+        -e INSTANCE_TYPE="$ITYPE" \
+        -e CLOUD_PROVIDER="AWS" \
         "$IMAGE" numpy elem 1000000 50 \
         | tee /var/log/bench/numpy-elem.jsonl
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \
         -e TASK="ffmpeg" \
         -e DATASET="default" \
+        -e INSTANCE_ID="$IID" \
+        -e INSTANCE_TYPE="$ITYPE" \
+        -e CLOUD_PROVIDER="AWS" \
         "$IMAGE" ffmpeg \
           -f lavfi \
           -i testsrc=duration=10:size=1920x1080:rate=30 \

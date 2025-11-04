@@ -35,3 +35,10 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Python virtual environment directory
+.venv/
+
+# Result files
+results/
+

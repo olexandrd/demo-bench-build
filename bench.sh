@@ -6,6 +6,9 @@ RUN_ID="${RUN_ID:-}"
 TASK="${TASK:-}"
 DATASET="${DATASET:-}"
 EXTRA="${EXTRA:-}"
+INSTANCE_ID="${INSTANCE_ID:-}"
+INSTANCE_TYPE="${INSTANCE_TYPE:-}"
+CLOUD_PROVIDER="${CLOUD_PROVIDER:-}"
 
 now_ms() { date +%s%3N; }  # мілісекунди
 arch=$(uname -m)
@@ -22,7 +25,7 @@ emit_json() {
     '{
       ts_start:$ts_start, ts_end:$ts_end, cmd:$cmd, exit_code: ($exit_code|tonumber),
       metrics:{ wall_s:$wall_s, user_s:$user_s, sys_s:$sys_s, max_rss_kb:$max_rss_kb },
-      host:{ arch:$arch, cpu_model:$cpu_model, threads:$threads, mem_kb:$mem_kb },
+      host:{ arch:$arch, cpu_model:$cpu_model, threads:$threads, mem_kb:$mem_kb, instance_id:$INSTANCE_ID, instance_type:$INSTANCE_TYPE, cloud_provider:$CLOUD_PROVIDER },
       meta:{ run_id:$run_id, task:$task, dataset:$dataset, extra:$extra }
     }'
 }
