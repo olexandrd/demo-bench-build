@@ -9,6 +9,7 @@ EXTRA="${EXTRA:-}"
 INSTANCE_ID="${INSTANCE_ID:-}"
 INSTANCE_TYPE="${INSTANCE_TYPE:-}"
 CLOUD_PROVIDER="${CLOUD_PROVIDER:-}"
+CLOUD_REGION="${CLOUD_REGION:-}"
 
 now_ms() { date +%s%3N; }  # мілісекунди
 arch=$(uname -m)
@@ -22,11 +23,13 @@ emit_json() {
     --arg arch "$arch" --arg cpu_model "$cpu_model" --argjson threads "$threads" --argjson mem_kb "$mem_kb" \
     --arg run_id "$RUN_ID" --arg task "$TASK" --arg dataset "$DATASET" --arg extra "$EXTRA" \
     --argjson wall_s "$5" --argjson user_s "$6" --argjson sys_s "$7" --argjson max_rss_kb "$8" \
+    --arg cloud_region "$CLOUD_REGION" \
+    --argjson INSTANCE_ID "$INSTANCE_ID" --argjson INSTANCE_TYPE "$INSTANCE_TYPE" --argjson CLOUD_PROVIDER "$CLOUD_PROVIDER" \
     '{
       ts_start:$ts_start, ts_end:$ts_end, cmd:$cmd, exit_code: ($exit_code|tonumber),
       metrics:{ wall_s:$wall_s, user_s:$user_s, sys_s:$sys_s, max_rss_kb:$max_rss_kb },
-      host:{ arch:$arch, cpu_model:$cpu_model, threads:$threads, mem_kb:$mem_kb, instance_id:$INSTANCE_ID, instance_type:$INSTANCE_TYPE, cloud_provider:$CLOUD_PROVIDER },
-      meta:{ run_id:$run_id, task:$task, dataset:$dataset, extra:$extra }
+      host:{ arch:$arch, cpu_model:$cpu_model, threads:$threads, mem_kb:$mem_kb, instance_id:$INSTANCE_ID, instance_type:$INSTANCE_TYPE, cloud_provider:$CLOUD_PROVIDER, cloud_region:$cloud_region },
+      meta:{ run_id:$run_id, task:$task, dataset:$dataset, extra:$extra  }
     }'
 }
 

@@ -7,9 +7,10 @@ locals {
 # Рендеримо cloud-init через templatefile()
 locals {
   user_data_rendered = templatefile("${path.module}/user_data.tpl", {
-    run_id = random_uuid.run.result
-    bucket = aws_s3_bucket.bench.bucket
-    image  = var.bench_image
+    run_id       = random_uuid.run.result
+    bucket       = aws_s3_bucket.bench.bucket
+    image        = var.bench_image
+    cloud_region = var.aws_region
   })
 }
 

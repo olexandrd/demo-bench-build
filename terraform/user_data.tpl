@@ -10,6 +10,7 @@ write_files:
     content: |
       #!/usr/bin/env bash
       set -euo pipefail
+      CLOUD_REGION="${cloud_region}"
       RUN_ID="$RUN_ID"
       BUCKET="$BUCKET"
       IMAGE="$IMAGE"
@@ -19,7 +20,7 @@ write_files:
 
       mkdir -p /var/log/bench
 
-      # IMDSv2-safe метадані
+      # IMDSv2-safe metadata retrieval
       TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" || true)
       HDR=()
       [ -n "$${TOKEN}" ] && HDR=(-H "X-aws-ec2-metadata-token: $${TOKEN}")
@@ -36,6 +37,7 @@ write_files:
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
         -e CLOUD_PROVIDER="AWS" \
+        -e CLOUD_REGION="$CLOUD_REGION" \
         "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 20s \
         | tee /var/log/bench/stressng.jsonl
       docker run --rm --cpus=2 \
@@ -45,6 +47,7 @@ write_files:
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
         -e CLOUD_PROVIDER="AWS" \
+        -e CLOUD_REGION="$CLOUD_REGION" \
         "$IMAGE" numpy matmul 2000 \
         | tee /var/log/bench/numpy.jsonl
       docker run --rm --cpus=2 \
@@ -54,6 +57,7 @@ write_files:
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
         -e CLOUD_PROVIDER="AWS" \
+        -e CLOUD_REGION="$CLOUD_REGION" \
         "$IMAGE" numpy elem 1000000 50 \
         | tee /var/log/bench/numpy-elem.jsonl
       docker run --rm --cpus=2 \
@@ -63,6 +67,7 @@ write_files:
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
         -e CLOUD_PROVIDER="AWS" \
+        -e CLOUD_REGION="$CLOUD_REGION" \
         "$IMAGE" ffmpeg \
           -f lavfi \
           -i testsrc=duration=10:size=1920x1080:rate=30 \
