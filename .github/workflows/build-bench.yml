@@ -2,7 +2,7 @@ name: build-bench (amd64 + arm64 → GHCR)
 
 on:
   push:
-    branches: [ "main" ]
+    # branches: [ "main" ]
     paths:
       - "Dockerfile"
       - ".github/workflows/build-bench.yml"
