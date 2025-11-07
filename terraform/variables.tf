@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-  default     = "eu-north-1"
+  default     = "eu-west-1"
 }
 
 variable "bench_image" {
@@ -13,13 +13,13 @@ variable "bench_image" {
 variable "instance_types_arm" {
   description = "Instance types list ARM64 (Graviton)"
   type        = list(string)
-  default     = ["t4g.xlarge"]
+  default     = ["t4g.xlarge", "c6g.xlarge", "c7g.xlarge", "c8g.xlarge", "hpc7g.4xlarge"]
 }
 
 variable "instance_types_amd" {
   description = "Instance types list AMD64 (x86_64)"
   type        = list(string)
-  default     = ["t3.xlarge"]
+  default     = ["t3.xlarge", "c4.xlarge", "c5.xlarge", "c5a.xlarge", "c6a.xlarge", "c6i.xlarge", "c7a.xlarge", "c7i.xlarge", "hpc7a.12xlarge"]
 }
 
 variable "instances_per_type" {
