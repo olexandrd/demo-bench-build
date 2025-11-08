@@ -14,6 +14,7 @@ write_files:
       RUN_ID="$RUN_ID"
       BUCKET="$BUCKET"
       IMAGE="$IMAGE"
+      REPEATS="${REPEATS:-20}"
 
       systemctl enable --now docker
       docker pull "$IMAGE"
@@ -30,54 +31,59 @@ write_files:
       ARCH=$(uname -m)
       PREFIX="runs/$${ARCH}/$${ITYPE}/$${RUN_ID}/$${IID}"
 
-      docker run --rm --cpus=2 \
-        -e RUN_ID="$RUN_ID" \
-        -e TASK="stress-ng" \
-        -e DATASET="default" \
-        -e INSTANCE_ID="$IID" \
-        -e INSTANCE_TYPE="$ITYPE" \
-        -e CLOUD_PROVIDER="AWS" \
-        -e CLOUD_REGION="$CLOUD_REGION" \
-        "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 20s \
-        | tee /var/log/bench/stressng.jsonl
-      docker run --rm --cpus=2 \
-        -e RUN_ID="$RUN_ID" \
-        -e TASK="numpy-matmul" \
-        -e DATASET="default" \
-        -e INSTANCE_ID="$IID" \
-        -e INSTANCE_TYPE="$ITYPE" \
-        -e CLOUD_PROVIDER="AWS" \
-        -e CLOUD_REGION="$CLOUD_REGION" \
-        "$IMAGE" numpy matmul 2000 \
-        | tee /var/log/bench/numpy-matmul.jsonl
-      docker run --rm --cpus=2 \
-        -e RUN_ID="$RUN_ID" \
-        -e TASK="numpy-elem" \
-        -e DATASET="default" \
-        -e INSTANCE_ID="$IID" \
-        -e INSTANCE_TYPE="$ITYPE" \
-        -e CLOUD_PROVIDER="AWS" \
-        -e CLOUD_REGION="$CLOUD_REGION" \
-        "$IMAGE" numpy elem 1000000 50 \
-        | tee /var/log/bench/numpy-elem.jsonl
-      docker run --rm --cpus=2 \
-        -e RUN_ID="$RUN_ID" \
-        -e TASK="ffmpeg" \
-        -e DATASET="default" \
-        -e INSTANCE_ID="$IID" \
-        -e INSTANCE_TYPE="$ITYPE" \
-        -e CLOUD_PROVIDER="AWS" \
-        -e CLOUD_REGION="$CLOUD_REGION" \
-        "$IMAGE" ffmpeg \
-          -f lavfi \
-          -i testsrc=duration=10:size=1920x1080:rate=30 \
-          -c:v libx264 \
-          -preset medium \
-          -crf 28 \
-          -an \
-          -f null - \
-        | tee /var/log/bench/ffmpeg.jsonl
+      docker pull "$IMAGE"
 
+      for i in $(seq 1 "$REPEATS"); do
+        echo "Starting benchmark run #$${i}/$${REPEATS}"
+
+        docker run --rm --cpus=2 \
+          -e RUN_ID="$RUN_ID" \
+          -e TASK="stress-ng" \
+          -e DATASET="default" \
+          -e INSTANCE_ID="$IID" \
+          -e INSTANCE_TYPE="$ITYPE" \
+          -e CLOUD_PROVIDER="AWS" \
+          -e CLOUD_REGION="$CLOUD_REGION" \
+          "$IMAGE" stress-ng --cpu 2 --cpu-method all --metrics-brief --cpu-ops 1000 --timeout 20s \
+          | tee -a /var/log/bench/stressng.jsonl
+        docker run --rm --cpus=2 \
+          -e RUN_ID="$RUN_ID" \
+          -e TASK="numpy-matmul" \
+          -e DATASET="default" \
+          -e INSTANCE_ID="$IID" \
+          -e INSTANCE_TYPE="$ITYPE" \
+          -e CLOUD_PROVIDER="AWS" \
+          -e CLOUD_REGION="$CLOUD_REGION" \
+          "$IMAGE" numpy matmul 2000 \
+          | tee -a /var/log/bench/numpy-matmul.jsonl
+        docker run --rm --cpus=2 \
+          -e RUN_ID="$RUN_ID" \
+          -e TASK="numpy-elem" \
+          -e DATASET="default" \
+          -e INSTANCE_ID="$IID" \
+          -e INSTANCE_TYPE="$ITYPE" \
+          -e CLOUD_PROVIDER="AWS" \
+          -e CLOUD_REGION="$CLOUD_REGION" \
+          "$IMAGE" numpy elem 1000000 50 \
+          | tee -a /var/log/bench/numpy-elem.jsonl
+        docker run --rm --cpus=2 \
+          -e RUN_ID="$RUN_ID" \
+          -e TASK="ffmpeg" \
+          -e DATASET="default" \
+          -e INSTANCE_ID="$IID" \
+          -e INSTANCE_TYPE="$ITYPE" \
+          -e CLOUD_PROVIDER="AWS" \
+          -e CLOUD_REGION="$CLOUD_REGION" \
+          "$IMAGE" ffmpeg \
+            -f lavfi \
+            -i testsrc=duration=10:size=1920x1080:rate=30 \
+            -c:v libx264 \
+            -preset medium \
+            -crf 28 \
+            -an \
+            -f null - \
+          | tee -a /var/log/bench/ffmpeg.jsonl
+      done
       aws s3 cp /var/log/bench/stressng.jsonl   "s3://$${BUCKET}/$${PREFIX}/stressng.jsonl"
       aws s3 cp /var/log/bench/numpy-matmul.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-matmul.jsonl"
       aws s3 cp /var/log/bench/numpy-elem.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-elem.jsonl"
