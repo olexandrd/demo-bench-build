@@ -14,7 +14,7 @@ write_files:
       RUN_ID="$RUN_ID"
       BUCKET="$BUCKET"
       IMAGE="$IMAGE"
-      REPEATS="${REPEATS:-20}"
+      REPEATS="$${REPEATS:-20}"
 
       systemctl enable --now docker
       docker pull "$IMAGE"
