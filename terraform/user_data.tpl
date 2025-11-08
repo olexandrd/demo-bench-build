@@ -42,17 +42,17 @@ write_files:
         | tee /var/log/bench/stressng.jsonl
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \
-        -e TASK="stress-ng" \
+        -e TASK="numpy-matmul" \
         -e DATASET="default" \
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
         -e CLOUD_PROVIDER="AWS" \
         -e CLOUD_REGION="$CLOUD_REGION" \
         "$IMAGE" numpy matmul 2000 \
-        | tee /var/log/bench/numpy.jsonl
+        | tee /var/log/bench/numpy-matmul.jsonl
       docker run --rm --cpus=2 \
         -e RUN_ID="$RUN_ID" \
-        -e TASK="stress-ng" \
+        -e TASK="numpy-elem" \
         -e DATASET="default" \
         -e INSTANCE_ID="$IID" \
         -e INSTANCE_TYPE="$ITYPE" \
@@ -79,7 +79,7 @@ write_files:
         | tee /var/log/bench/ffmpeg.jsonl
 
       aws s3 cp /var/log/bench/stressng.jsonl   "s3://$${BUCKET}/$${PREFIX}/stressng.jsonl"
-      aws s3 cp /var/log/bench/numpy.jsonl      "s3://$${BUCKET}/$${PREFIX}/numpy.jsonl"
+      aws s3 cp /var/log/bench/numpy-matmul.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-matmul.jsonl"
       aws s3 cp /var/log/bench/numpy-elem.jsonl "s3://$${BUCKET}/$${PREFIX}/numpy-elem.jsonl"
       aws s3 cp /var/log/bench/ffmpeg.jsonl     "s3://$${BUCKET}/$${PREFIX}/ffmpeg.jsonl"
       touch DONE && aws s3 cp DONE "s3://$${BUCKET}/$${PREFIX}/DONE"
