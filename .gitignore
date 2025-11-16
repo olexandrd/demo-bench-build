@@ -41,6 +41,8 @@ terraform.rc
 
 # Result files
 results/
+_results/
+data/
 
 # MacOS specific files
 .DS_Store
